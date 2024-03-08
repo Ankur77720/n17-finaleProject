@@ -1,9 +1,7 @@
 const playPauseBtn = document.querySelector(".play-pause-btn")
-const theaterBtn = document.querySelector(".theater-btn")
 const fullScreenBtn = document.querySelector(".full-screen-btn")
 const miniPlayerBtn = document.querySelector(".mini-player-btn")
 const muteBtn = document.querySelector(".mute-btn")
-const captionsBtn = document.querySelector(".captions-btn")
 const speedBtn = document.querySelector(".speed-btn")
 const currentTimeElem = document.querySelector(".current-time")
 const totalTimeElem = document.querySelector(".total-time")
@@ -101,13 +99,6 @@ function changePlaybackSpeed() {
 
 // Captions
 
-captionsBtn.addEventListener("click", toggleCaptions)
-
-function toggleCaptions() {
-    const isHidden = captions.mode === "hidden"
-    captions.mode = isHidden ? "showing" : "hidden"
-    videoContainer.classList.toggle("captions", isHidden)
-}
 
 // Duration
 video.addEventListener("loadeddata", () => {
@@ -167,13 +158,10 @@ video.addEventListener("volumechange", () => {
 })
 
 // View Modes
-theaterBtn.addEventListener("click", toggleTheaterMode)
 fullScreenBtn.addEventListener("click", toggleFullScreenMode)
 miniPlayerBtn.addEventListener("click", toggleMiniPlayerMode)
 
-function toggleTheaterMode() {
-    videoContainer.classList.toggle("theater")
-}
+
 
 function toggleFullScreenMode() {
     if (document.fullscreenElement == null) {
