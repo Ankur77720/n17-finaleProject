@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://unpkg.com/feather-icons"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    * {
+      margin: 0%;
+      padding: 0%;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="w-full h-full">
+    <nav class="p-4 fixed w-full top-0 flex justify-between shadow-lg  top-0 bg-white">
+      <h2>Upload video</h2>
+    </nav>
+    <section class="w-full h-full bg-blend-darken flex items-center justify-center">
+      <form enctype="multipart/form-data" method="post" class="center flex flex-col gap-2 items-center">
+        <label for="videoFile" class="rounded-full flex p-8 bg-slate-50 w-fit">
+          <i data-feather="upload"></i>
+          <input type="file" name="video" id="videoFile" hidden>
+        </label>
+        <p>select file for uploading</p>
+        <button type="text" disabled class="w-fit p-3 mt-4 px-8 rounded-lg bg-slate-900 text-slate-50  disabled:opacity-25">
+          Upload
+        </button>
+      </form>
+    </section>
+
+  </main>
+  <script>
+    feather.replace();
+
+    document.querySelector('input[type=file]').addEventListener('change', (event) => {
+      if (event.target.files[0]) {
+        document.querySelector('button').disabled = false
+      }
+    })
+  </script>
+</body>
+
+</html>

@@ -10,4 +10,9 @@ router.get('/currentVideo', function (req, res, next) {
   res.render('currentVideo')
 })
 
+router.get('/upload', (req, res, next) => {
+  res.render('upload')
+})
+
+
 module.exports = router;
