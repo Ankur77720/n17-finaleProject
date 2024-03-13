@@ -1,9 +1,27 @@
-var express = require('express');
-var router = express.Router();
+const mongoose = require('mongoose');
+const plm = require('passport-local-mongoose')
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
-  res.send('respond with a resource');
-});
+mongoose.connect('mongodb://0.0.0.0/youtube_n17').then(() => {
+  console.log('connected to db')
+})
 
-module.exports = router;
+const userSchema = mongoose.Schema({
+  username: String,
+  password: String,
+  subscriptions: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user"
+  } ],
+  subscribers: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user"
+  } ],
+  likes: [ {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "video"
+  } ],
+})
+
+userSchema.plugin(plm)
+
+module.exports = mongoose.model('user', userSchema)
