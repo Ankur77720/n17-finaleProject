@@ -1,0 +1,22 @@
+const HOSTNAME = 'sg.storage.bunnycdn.com';
+const STORAGE_ZONE_NAME = 'india-shery';
+const ACCESS_KEY = '559e564f-1e53-471a-85f891e543b4-06e2-4c36';
+
+const uploadFileToBunnyCDN = (filePath, fileName) => {
+  return new Promise(async (resolve, reject) => {
+    const readStream = fs.createReadStream(filePath);
+
+    try {
+      const response = await axios.put(`https://${HOSTNAME}/${STORAGE_ZONE_NAME}/${fileName}`, fs.createReadStream(filePath), {
+        headers: {
+          AccessKey: ACCESS_KEY,
+          'Content-Type': 'application/octet-stream',
+        },
+      });
+
+      resolve(response.data);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};

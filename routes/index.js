@@ -1,5 +1,6 @@
 var express = require('express');
 var router = express.Router();
+const axios = require('axios')
 
 var userModel = require('./users')
 var passport = require('passport')
@@ -24,6 +25,10 @@ router.get('/register', (req, res, next) => {
   res.render('register')
 })
 
+const HOSTNAME = process.env.HOST_NAME;
+const STORAGE_ZONE_NAME = process.env.STORAGE_ZONE;
+const ACCESS_KEY = process.env.UPLOAD_KEY;
+const STREAMING_KEY = process.env.STREAM_KEY
 
 
 router.get('/currentVideo/:videoId', isloggedIn, async function (req, res, next) {
@@ -32,7 +37,9 @@ router.get('/currentVideo/:videoId', isloggedIn, async function (req, res, next)
     _id: req.params.videoId
   })
 
-  res.render('currentVideo', { currentVideo })
+  const videoUrl = `https://${HOSTNAME}/${STORAGE_ZONE_NAME}/${currentVideo.media}?accessKey=${STREAMING_KEY}`
+
+  res.render('currentVideo', { currentVideo, videoUrl })
 })
 
 router.get('/upload', isloggedIn, (req, res, next) => {
@@ -84,6 +91,29 @@ function isloggedIn(req, res, next) {
 
 /* ************** routes for video uploading ******************* */
 
+
+
+
+const uploadFileToBunnyCDN = (filePath, fileName) => {
+  return new Promise(async (resolve, reject) => {
+    const readStream = fs.createReadStream(filePath);
+
+    try {
+      const response = await axios.put(`https://${HOSTNAME}/${STORAGE_ZONE_NAME}/${fileName}`, fs.createReadStream(filePath), {
+        headers: {
+          AccessKey: ACCESS_KEY,
+          'Content-Type': 'application/octet-stream',
+        },
+      });
+      resolve(response.data);
+    } catch (error) {
+      reject(error);
+    }
+  });
+};
+
+
+
 router.post('/upload', isloggedIn, upload.single('vide_file'), async (req, res, next) => {
 
   const newVideo = await videoModel.create({
@@ -93,7 +123,11 @@ router.post('/upload', isloggedIn, upload.single('vide_file'), async (req, res, 
     description: req.body.description
   })
 
-  res.send(newVideo)
+  const response = await uploadFileToBunnyCDN(`./public/video/${req.file.filename}`, req.file.filename)
+
+  fs.unlinkSync(`./public/video/${req.file.filename}`)
+
+  res.send(response)
 
 })
 
@@ -103,7 +137,7 @@ router.post('/upload', isloggedIn, upload.single('vide_file'), async (req, res, 
 /* ************* Route for streaming ****************** */
 
 
-router.get('/stream/:fileName', isloggedIn, async (req, res, next) => {
+/* router.get('/stream/:fileName', isloggedIn, async (req, res, next) => {
 
   const range = req.headers.range
 
@@ -134,21 +168,9 @@ router.get('/stream/:fileName', isloggedIn, async (req, res, next) => {
   }).pipe(res)
 
 
-  /*  const head = {
-     'Content-Range': `bytes ${start}-${end}/${fileSize}`,
-     'Accept-Ranges': 'bytes',
-     'Content-Length': chunksize,
-     'Content-Type': 'video/mp4',
-   };
-   res.writeHead(206, head); */
+  
 
-
-
-  /*  console.log(range)
-   console.log(parts)
-   console.log(start) */
-
-})
+}) */
 
 
 /* 
