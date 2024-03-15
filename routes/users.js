@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const plm = require('passport-local-mongoose')
 
-mongoose.connect('mongodb://0.0.0.0/youtube_n17').then(() => {
+mongoose.connect('mongodb+srv://prajapatiharsh90218293:dqtNNopS0rjaCAgG@cluster0.bruqlmx.mongodb.net/youtube_n17').then(() => {
   console.log('connected to db')
 })
 
