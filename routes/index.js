@@ -6,7 +6,6 @@ var userModel = require('./users')
 var passport = require('passport')
 var localStrategy = require('passport-local')
 passport.use(new localStrategy(userModel.authenticate()))
-const upload = require('./multer')
 const videoModel = require('./video')
 const fs = require('fs')
 
@@ -94,12 +93,13 @@ function isloggedIn(req, res, next) {
 
 
 
-const uploadFileToBunnyCDN = (filePath, fileName) => {
-  return new Promise(async (resolve, reject) => {
-    const readStream = fs.createReadStream(filePath);
+const multer = require('multer');
+const upload = multer({ storage: multer.memoryStorage() });
 
+const uploadFileToBunnyCDN = (fileBuffer, fileName) => {
+  return new Promise(async (resolve, reject) => {
     try {
-      const response = await axios.put(`https://${HOSTNAME}/${STORAGE_ZONE_NAME}/${fileName}`, fs.createReadStream(filePath), {
+      const response = await axios.put(`https://${HOSTNAME}/${STORAGE_ZONE_NAME}/${fileName}`, fileBuffer, {
         headers: {
           AccessKey: ACCESS_KEY,
           'Content-Type': 'application/octet-stream',
@@ -112,23 +112,17 @@ const uploadFileToBunnyCDN = (filePath, fileName) => {
   });
 };
 
-
-
-router.post('/upload', isloggedIn, upload.single('vide_file'), async (req, res, next) => {
-
-  const newVideo = await videoModel.create({
-    media: req.file.filename,
+router.post('/upload', isloggedIn, upload.single('video_file'), async (req, res, next) => {
+  const newVideo = videoModel.create({
+    media: req.file.originalname,
     user: req.user._id,
     title: req.body.title,
     description: req.body.description
   })
 
-  const response = await uploadFileToBunnyCDN(`./public/video/${req.file.filename}`, req.file.filename)
-
-  fs.unlinkSync(`./public/video/${req.file.filename}`)
+  const response = await uploadFileToBunnyCDN(req.file.buffer, req.file.originalname)
 
   res.send(response)
-
 })
 
 /* ************** routes for video uploading ******************* */
